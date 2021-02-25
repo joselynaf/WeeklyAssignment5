@@ -12,7 +12,7 @@ output:
 
 
 ```{r setup, include=FALSE}
-#knitr::opts_chunk$set(echo = TRUE, error=TRUE, message=FALSE, warning=FALSE)
+knitr::opts_chunk$set(echo = TRUE, error=TRUE, message=FALSE, warning=FALSE)
 ```
 
 ```{r libraries}
@@ -203,6 +203,10 @@ ggmap(mallorcamap) +
   geom_image(data= mallorca_bike_day7 %>%  mutate(image=img),
              aes(image=image, x= lon, y= lat), 
              size=.08)+
+  labs(title = "Bike Route in Mallorca",
+       subtitle= "Time: {frame_along}",
+       x="",
+       y= "")+
   transition_reveal(along = time) 
 
 anim_save("mallorcabikerun.gif")
@@ -234,7 +238,7 @@ ggmap(panama_map) +
              aes(x =lon, y = lat, color=event),
              size = .5) +
   labs(title = "Panama Ironman Route",
-       subtitle = "Time:[frame_along}") +
+       subtitle = "Time:{frame_along}") +
   scale_color_manual (values = c("red","skyblue","green")) +
   theme_map () +
   theme(legend.background = element_blank()) +
@@ -256,20 +260,34 @@ knitr::include_graphics("panama_all.gif")
   * Use the `animate()` function to have 200 frames in your animation and make it 30 seconds long. 
   * Comment on what you observe.
   
-```{r}
-covid19 %>% 
-  mutate(new_cases_seven = cases- lag(cases, 7)/7,
+```{r, eval=FALSE}
+covidanimate<-covid19 %>% 
+  mutate(new_cases_seven = cases - lag(cases, 7)/7,
          new_cases_seven = replace_na(new_cases_seven,0)) %>% 
   filter(cases>=20) %>% 
   ggplot(aes(x=cases, y=new_cases_seven)) +
   geom_path() +
   geom_point(aes(group=date))+
-  geom_text(aes(label=state, color= state))+
-  scale_fill_manual(values= "red")+
+  geom_text(aes(label=state, color= state)) +
   scale_x_log10()+
   scale_y_log10()+
+  theme(legend.position = "none") +
+  labs(title = "Cumulative Cases by New COVID Cases in the past 7 days for the United States",
+       subtitle = "Date: {frame_along}",
+       x= "",
+       y= "") +
   transition_reveal(date)
+
+animate(covidanimate, duration = 30)
+#Error: cannot allocate vector of size 1.2 Gb whenever changing fps
+
+anim_save("covidcases.gif")
 ```
+```{r}
+knitr::include_graphics("covidcases.gif")
+```
+
+In this animation, the amount of cases is increasing, with states that have higher populations such as California, New York and Texas leading the increase over time.
 
   7. In this exercise you will animate a map of the US, showing how cumulative COVID-19 cases per 10,000 residents has changed over time. This is similar to exercises 11 & 12 from the previous exercises, with the added animation! So, in the end, you should have something like the static map you made there, but animated over all the days. The code below gives the population estimates for each state and loads the `states_map` data. Here is a list of details you should include in the plot:
   
@@ -303,6 +321,10 @@ covidanim<-covid_10000data %>%
                fill = cases_per_10000,
                group = date)) +
   scale_fill_viridis_c()+
+  labs(title = "Cumulative COVID cases per 10000 over time",
+       x= "",
+       y= "",
+       fill= "Cases per 10000")+
   expand_limits(x = states_map$long, y = states_map$lat) +
   transition_states(date)
 
@@ -315,6 +337,8 @@ anim_save("covidanim.gif")
 ```{r}
 knitr::include_graphics("covidanim.gif")
 ```
+
+Over time the cases per 10000 increases throughout the United States, however it is concentrated in certain states such as North Dakota and South Dakota.
 
 ## Your first `shiny` app (for next week!)
 
@@ -331,5 +355,6 @@ NOT DUE THIS WEEK! If any of you want to work ahead, this will be on next week's
 
   9. Below, provide a link to your GitHub page with this set of Weekly Exercises. Specifically, if the name of the file is 05_exercises.Rmd, provide a link to the 05_exercises.md file, which is the one that will be most readable on GitHub. If that file isn't very readable, then provide a link to your main GitHub page.
 
+[Weekly Assignment 5 link](https://github.com/joselynaf/WeeklyAssignment5)
 
 **DID YOU REMEMBER TO UNCOMMENT THE OPTIONS AT THE TOP?**
